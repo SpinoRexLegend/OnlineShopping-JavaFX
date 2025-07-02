@@ -34,9 +34,16 @@ public class OnlineShopping implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        orders.put("Altair", 0);
+        orders.put("Ezio", 0);
+        orders.put("Desmond", 0);
+        orders.put("Edward", 0);
+        orders.put("Connor", 0);
+        orders.put("Arno", 0);
+
         addSpinner(null);
         addPrice(null);
-        updatePrice(null);
+        updatePrice();
     }
 
     public void setUserName(String userName)
@@ -44,7 +51,7 @@ public class OnlineShopping implements Initializable {
         this.userName = userName;
     }
 
-    private double updatePrice(ActionEvent event) {
+    private double updatePrice() {
         double take1 = altairNo.getValue() * database.getPrice("Altair");
         double take2 = ezioNo.getValue() * database.getPrice("Ezio");
         double take3 = desmondNo.getValue() * database.getPrice("Desmond");
@@ -64,12 +71,12 @@ public class OnlineShopping implements Initializable {
 
     public void addSpinner(ActionEvent event)
     {
-        altairNo.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, Math.min(database.getQty("Altair"), 10), 0));
-        ezioNo.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, Math.min(database.getQty("Ezio"), 10), 0));
-        desmondNo.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, Math.min(database.getQty("Desmond"), 10), 0));
-        edwardNo.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, Math.min(database.getQty("Edward"), 10), 0));
-        connorNo.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, Math.min(database.getQty("Connor"), 10), 0));
-        arnoNo.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, Math.min(database.getQty("Arno"), 10), 0));
+        altairNo.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, Math.min(database.getQty("Altair"), 10), orders.get("Altair")));
+        ezioNo.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, Math.min(database.getQty("Ezio"), 10), orders.get("Ezio")));
+        desmondNo.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, Math.min(database.getQty("Desmond"), 10), orders.get("Desmond")));
+        edwardNo.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, Math.min(database.getQty("Edward"), 10), orders.get("Edward")));
+        connorNo.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, Math.min(database.getQty("Connor"), 10), orders.get("Connor")));
+        arnoNo.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, Math.min(database.getQty("Arno"), 10), orders.get("Arno")));
     }
 
     public void addPrice(ActionEvent event) {
@@ -92,11 +99,18 @@ public class OnlineShopping implements Initializable {
 
     public void savePrice(ActionEvent event) {
         displayPrice(null);
-        totalPrice.setText(Double.toString(updatePrice(null)));
+        totalPrice.setText(Double.toString(updatePrice()));
     }
 
-    public void proceedToPayment(ActionEvent event) {
-        database.changeData(orders);
-        database.addList(orders, userName);
+    public void proceedToPayment(ActionEvent event) throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("Cart.fxml"));
+        Parent newNode = loader.load();
+        Cart cartController = loader.getController();
+        cartController.upDateCart(orders);
+        cartController.setData(orders, userName);
+        Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+        Scene newScene = new Scene(newNode);
+        stage.setScene(newScene);
+        stage.show();
     }
 }

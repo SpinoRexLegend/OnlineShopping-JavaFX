@@ -14,13 +14,13 @@ public class Database {
 
     public void addList(HashMap<String, Integer> hash, String userName) {
         try (Connection connection = connection()) {
-            PreparedStatement ps = connection.prepareStatement("UPDATE Customers SET ALtair = ?, Ezio = ?, Desmond = ?, Edward = ?, Connor = ?, Arno = ? where userName = ?");
-            ps.setInt(1, hash.get("Altair"));
-            ps.setInt(2, hash.get("Ezio"));
-            ps.setInt(3, hash.get("Desmond"));
-            ps.setInt(4, hash.get("Edward"));
-            ps.setInt(5, hash.get("Connor"));
-            ps.setInt(6, hash.get("Arno"));
+            PreparedStatement ps = connection.prepareStatement("UPDATE Customers SET Altair = ?, Ezio = ?, Desmond = ?, Edward = ?, Connor = ?, Arno = ? where userName = ?");
+            ps.setInt(1, getCustomerQty("Altair", userName)+hash.get("Altair"));
+            ps.setInt(2, getCustomerQty("Ezio", userName)+hash.get("Ezio"));
+            ps.setInt(3, getCustomerQty("Desmond", userName)+hash.get("Desmond"));
+            ps.setInt(4, getCustomerQty("Edward", userName)+hash.get("Edward"));
+            ps.setInt(5, getCustomerQty("Connor", userName)+hash.get("Connor"));
+            ps.setInt(6, getCustomerQty("Arno", userName)+hash.get("Arno"));
             ps.setString(7, userName);
             ps.executeUpdate();
             System.out.println(userName);
@@ -54,7 +54,19 @@ public class Database {
             throw new RuntimeException(e);
         }
     }
+    public int getCustomerQty(String prod, String userName)
+    {
+        try (Connection connection = connection()) {
+            PreparedStatement ps = connection.prepareStatement("SELECT "+prod+" from Customers where UserName = ?");
+            ps.setString(1, userName);
+            ResultSet rs = ps.executeQuery();
+            return ((rs.next())?rs.getInt(prod): 0);
 
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
     public int getQty(String name)
     {
         try (Connection connection = connection()) {
